@@ -25,7 +25,6 @@ func (c *controller) serviceHandlers() cache.ResourceEventHandlerFuncs  {
 			c.addService(obj.(*kapi.Service))
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			// care about update only if old one didn't have a nodeport, but new one does
 			svc, ok := obj.(*kapi.Service)
 			if !ok {
 				logrus.Errorf("Errorneous object type in add service event")
@@ -49,5 +48,28 @@ func (c *controller) serviceHandlers() cache.ResourceEventHandlerFuncs  {
 			}
 			c.deleteService(obj.(*kapi.Service))
 		},
+	}
+}
+
+func (c *controller) addService(svc *kapi.Service) {
+	if svc.Spec.Type != kapi.ServiceTypeLoadBalancer {
+		return
+	}
+	// get all ports/nodeports and create lb entries
+	for _, svcPort := range(svc.Spec.Ports) {
+		c.lbUpdate(svcPort.Port, svcPort.Protocol, svcPort.NodePort)
+	}
+}
+
+func (c *controller) updateService(svc *kapi.Service) {
+	// TODO: care about update only if old one didn't have a nodeport, but new one does
+}
+
+func (c *controller) deleteService(svc *kapi.Service) {
+	if svc.Spec.Type != kapi.ServiceTypeLoadBalancer {
+		return
+	}
+	for _, svcPort := range(svc.Spec.Ports) {
+		c.lbDelete(svcPort.Port, svcPort.Protocol, svcPort.NodePort)
 	}
 }

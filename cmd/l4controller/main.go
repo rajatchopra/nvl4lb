@@ -47,7 +47,7 @@ func runSvcWatcher(ctx *cli.Context) error {
 		logrus.Errorf("Error creating client from internal kubeconfig: %v", err)
 		return err
 	}
-	err = controller.Start(lb, kClient)
+	err = controller.Start(lb, ctx.String("backend-selector"), kClient)
 	if err != nil {
 		logrus.Errorf("Could not start controller: %v", err)
 		return err

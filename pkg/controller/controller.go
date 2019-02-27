@@ -3,8 +3,7 @@ package controller
 import (
 	"fmt"
 	"net"
-
-	"github.com/sirupsen/logrus"
+	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -12,8 +11,12 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
+const (
+	resyncInterval        = 12 * time.Hour
+)
+
 type Controller interface {
-	Run(c kubernetes.Interface)
+	Run(c kubernetes.Interface) error
 }
 
 type controller struct {
@@ -34,7 +37,7 @@ func Start(lb string, backendSelector string, kClient kubernetes.Interface) erro
 	return c.Run(kClient)
 }
 
-func New(lb string, backendSelector string, kClient kubernetes.Interface) (Controller, error) {
+func New(lb string, backendSelector string) (Controller, error) {
 	lbIP, lbPort, err := net.SplitHostPort(lb)
 	if err != nil {
 		return nil, fmt.Errorf("Error in parsing lb address: %v", err)
@@ -53,8 +56,8 @@ func New(lb string, backendSelector string, kClient kubernetes.Interface) (Contr
 	return c, nil
 }
 
-func (c *controller) Run(c kubernetes.Interface) error {
-	iFactory := informerfactory.NewSharedInformerFactory(c, resyncInterval)
+func (c *controller) Run(kClient kubernetes.Interface) error {
+	iFactory := informerfactory.NewSharedInformerFactory(kClient, resyncInterval)
 	c.svcInformer = iFactory.Core().V1().Services().Informer()
 	c.nodeInformer = iFactory.Core().V1().Nodes().Informer()
 
@@ -65,10 +68,10 @@ func (c *controller) Run(c kubernetes.Interface) error {
 	res := iFactory.WaitForCacheSync(stopChan)
 	for oType, synced := range res {
 		if !synced {
-			return nil, fmt.Errorf("error in syncing cache for %v informer", oType)
+			return fmt.Errorf("error in syncing cache for %v informer", oType)
 		}
 	}
-	svcInformer.AddEventHandler(c.serviceHandlers())
-	nodeInformer.AddEventHandler(c.nodeHandlers())
+	c.svcInformer.AddEventHandler(c.serviceHandlers())
+	c.nodeInformer.AddEventHandler(c.nodeHandlers())
 	return nil
 }
