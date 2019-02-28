@@ -1,4 +1,6 @@
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
+github.com/apcera/util v0.0.0-20180322191801-7a50bc84ee48 h1:l9RDXySez/kS9116AdiHPtK5RDqOoLlUPjNRRBt7bog=
+github.com/apcera/util v0.0.0-20180322191801-7a50bc84ee48/go.mod h1:cXeNj+QhW0mxc26R8I87i6ekZz/VEvdx8/KSRwdc5BU=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gogo/protobuf v1.2.1 h1:/s5zKNz0uPFCZ5hddgPdo2TK2TVrUNMn0OOX8/aZMTE=

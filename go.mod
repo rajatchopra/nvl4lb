@@ -3,6 +3,7 @@ module github.com/NVIDIA/nvl4lb
 go 1.12
 
 require (
+	github.com/apcera/util v0.0.0-20180322191801-7a50bc84ee48
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef // indirect
 	github.com/golang/protobuf v1.3.0 // indirect

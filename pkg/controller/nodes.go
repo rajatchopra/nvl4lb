@@ -2,11 +2,13 @@ package controller
 
 import (
 	"net"
+	"reflect"
 
 	"github.com/sirupsen/logrus"
 
 	kapi "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -22,15 +24,15 @@ func (c *controller) nodeHandlers() cache.ResourceEventHandlerFuncs  {
 				logrus.Errorf("Errorneous object type in add node event")
 				return
 			}
-			c.addNode(obj.(*kapi.Node))
+			c.addNode(node)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			svc, ok := obj.(*kapi.Node)
+			node, ok := newObj.(*kapi.Node)
 			if !ok {
 				logrus.Errorf("Errorneous object type in update node event")
 				return
 			}
-			c.updateNode(obj.(*kapi.Node))
+			c.updateNode(node)
 		},
 		DeleteFunc: func(obj interface{}) {
 			if nodeType != reflect.TypeOf(obj) {
@@ -57,21 +59,27 @@ func getNodeIP(node *kapi.Node) net.IP {
 	ip := net.ParseIP(nodeAddr)
 	if ip == nil {
 		// error, is it a resolvable string?
-		ipv4, ipv6, err := net.LookupIP(nodeAddr)
+		ips, err := net.LookupIP(nodeAddr)
 		if err != nil {
 			logrus.Errorf("Error in calculating Node '%s''s IP address: %v", node.Name, err)
 			return nil
 		}
-		if ipv4 != nil {
-			ip = ipv4
-		} else {
-			ip = ipv6
-		}
+		// use ipv4
+		ip = ips[0]
 	}
 	return ip
 }
 
 func (c *controller) addNode(node *kapi.Node) {
+	// check labels
+	sel, err := metav1.LabelSelectorAsSelector(c.selector)
+	if err != nil {
+		logrus.Errorf("Error creating label selectors: %v", err)
+	}
+	if sel != nil && !sel.Matches(labels.Set(node.ObjectMeta.Labels)) {
+		// this is not the node we want to worry about
+		return
+	}
 	if ip := getNodeIP(node); ip != nil {
 		c.backendNodes = append(c.backendNodes, ip)
 		c.syncBackends()
@@ -96,4 +104,5 @@ func (c *controller) deleteNode(node *kapi.Node) {
 
 func (c *controller) syncBackends() {
 	// contact lb and update all backends to new list
+	c.lbUpdateAll()
 }

@@ -2,11 +2,11 @@ package controller
 
 import (
 	"net"
+	"reflect"
 
 	"github.com/sirupsen/logrus"
 
 	kapi "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -22,15 +22,15 @@ func (c *controller) serviceHandlers() cache.ResourceEventHandlerFuncs  {
 				logrus.Errorf("Errorneous object type in add service event")
 				return
 			}
-			c.addService(obj.(*kapi.Service))
+			c.addService(svc)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			svc, ok := obj.(*kapi.Service)
+			svc, ok := newObj.(*kapi.Service)
 			if !ok {
 				logrus.Errorf("Errorneous object type in add service event")
 				return
 			}
-			c.updateService(obj.(*kapi.Service))
+			c.updateService(svc)
 		},
 		DeleteFunc: func(obj interface{}) {
 			if serviceType != reflect.TypeOf(obj) {
@@ -57,7 +57,12 @@ func (c *controller) addService(svc *kapi.Service) {
 	}
 	// get all ports/nodeports and create lb entries
 	for _, svcPort := range(svc.Spec.Ports) {
-		c.lbUpdate(svcPort.Port, svcPort.Protocol, svcPort.NodePort)
+		ip, err := c.getNewLoadBalancerIP()
+		if err != nil {
+			logrus.Errorf("Failed to get new IP for service %s, port %d: %v", svc.Name, svcPort.Port, err)
+			continue
+		}
+		c.lbUpdate(svcPort.Port, svcPort.NodePort, string(svcPort.Protocol), ip)
 	}
 }
 
@@ -70,6 +75,16 @@ func (c *controller) deleteService(svc *kapi.Service) {
 		return
 	}
 	for _, svcPort := range(svc.Spec.Ports) {
-		c.lbDelete(svcPort.Port, svcPort.Protocol, svcPort.NodePort)
+		if len(svc.Spec.ExternalIPs) > 0 {
+			ip := net.ParseIP(svc.Spec.ExternalIPs[0])
+			if ip != nil {
+				c.lbDelete(svcPort.Port, svcPort.NodePort, string(svcPort.Protocol), ip)
+				c.freeLoadBalancerIP(ip)
+			} else {
+				logrus.Errorf("ExternalIP not parse-able for deleted svc %s: %v", svc.Name, svc.Spec.ExternalIPs)
+			}
+		} else {
+			logrus.Errorf("ExternalIPs not available for deleted svc %s", svc.Name)
+		}
 	}
 }

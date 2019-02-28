@@ -5,6 +5,8 @@ import (
 	"net"
 	"time"
 
+	"github.com/apcera/util/iprange"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	informerfactory "k8s.io/client-go/informers"
@@ -25,6 +27,7 @@ type controller struct {
 	backendNodes []net.IP
 	selector *metav1.LabelSelector
 
+	ipAllocator *iprange.IPRangeAllocator
 	svcInformer cache.SharedIndexInformer
 	nodeInformer cache.SharedIndexInformer
 }
@@ -53,6 +56,9 @@ func New(lb string, backendSelector string) (Controller, error) {
 		lbPort: lbPort,
 		selector: selector,
 	}
+	// TODO: fix hardcoded IP range
+	ipr, _ := iprange.ParseIPRange("10.10.100.1/24")
+	c.ipAllocator = iprange.NewAllocator(ipr)
 	return c, nil
 }
 
