@@ -16,12 +16,12 @@ func main() {
 	c.Version = "0.0.1"
 	c.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "addr",
+			Name:  "addr",
 			Value: "0:8000",
 			Usage: "Address and port to listen upon",
 		},
 		cli.StringFlag{
-			Name: "interface",
+			Name:  "interface",
 			Value: "eth0",
 			Usage: "Interface where virtual IPs should be created",
 		},

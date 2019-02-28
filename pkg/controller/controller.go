@@ -8,13 +8,13 @@ import (
 	"github.com/apcera/util/iprange"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	informerfactory "k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 )
 
 const (
-	resyncInterval        = 12 * time.Hour
+	resyncInterval = 12 * time.Hour
 )
 
 type Controller interface {
@@ -22,13 +22,13 @@ type Controller interface {
 }
 
 type controller struct {
-	lbIP string
-	lbPort string
+	lbIP         string
+	lbPort       string
 	backendNodes []net.IP
-	selector *metav1.LabelSelector
+	selector     *metav1.LabelSelector
 
-	ipAllocator *iprange.IPRangeAllocator
-	svcInformer cache.SharedIndexInformer
+	ipAllocator  *iprange.IPRangeAllocator
+	svcInformer  cache.SharedIndexInformer
 	nodeInformer cache.SharedIndexInformer
 }
 
@@ -52,8 +52,8 @@ func New(lb string, cidr, backendSelector string) (Controller, error) {
 	}
 
 	c := &controller{
-		lbIP: lbIP,
-		lbPort: lbPort,
+		lbIP:     lbIP,
+		lbPort:   lbPort,
 		selector: selector,
 	}
 	// TODO: fix hardcoded IP range

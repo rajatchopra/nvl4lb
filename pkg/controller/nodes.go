@@ -16,7 +16,7 @@ var (
 	nodeType reflect.Type = reflect.TypeOf(&kapi.Node{})
 )
 
-func (c *controller) nodeHandlers() cache.ResourceEventHandlerFuncs  {
+func (c *controller) nodeHandlers() cache.ResourceEventHandlerFuncs {
 	return cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			node, ok := obj.(*kapi.Node)
@@ -86,7 +86,7 @@ func (c *controller) addNode(node *kapi.Node) {
 	}
 }
 
-func (c* controller) updateNode(node *kapi.Node) {
+func (c *controller) updateNode(node *kapi.Node) {
 	// ignore for now
 	// TODO: check if the update is because the label is not applicable anymore
 }
@@ -94,7 +94,7 @@ func (c* controller) updateNode(node *kapi.Node) {
 func (c *controller) deleteNode(node *kapi.Node) {
 	if nodeIP := getNodeIP(node); nodeIP != nil {
 		for i, ip := range c.backendNodes {
-			if ip.String()==nodeIP.String() {
+			if ip.String() == nodeIP.String() {
 				c.backendNodes = append(c.backendNodes[:i], c.backendNodes[i+1:]...)
 				c.syncBackends()
 			}

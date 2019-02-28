@@ -1,11 +1,11 @@
 package controller
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
-	"bytes"
-	"io/ioutil"
 
 	"github.com/sirupsen/logrus"
 

@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	serviceType   reflect.Type = reflect.TypeOf(&kapi.Service{})
+	serviceType reflect.Type = reflect.TypeOf(&kapi.Service{})
 )
 
-func (c *controller) serviceHandlers() cache.ResourceEventHandlerFuncs  {
+func (c *controller) serviceHandlers() cache.ResourceEventHandlerFuncs {
 	return cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			svc, ok := obj.(*kapi.Service)
@@ -56,7 +56,7 @@ func (c *controller) addService(svc *kapi.Service) {
 		return
 	}
 	// get all ports/nodeports and create lb entries
-	for _, svcPort := range(svc.Spec.Ports) {
+	for _, svcPort := range svc.Spec.Ports {
 		ip, err := c.getNewLoadBalancerIP()
 		if err != nil {
 			logrus.Errorf("Failed to get new IP for service %s, port %d: %v", svc.Name, svcPort.Port, err)
@@ -74,7 +74,7 @@ func (c *controller) deleteService(svc *kapi.Service) {
 	if svc.Spec.Type != kapi.ServiceTypeLoadBalancer {
 		return
 	}
-	for _, svcPort := range(svc.Spec.Ports) {
+	for _, svcPort := range svc.Spec.Ports {
 		if len(svc.Spec.ExternalIPs) > 0 {
 			ip := net.ParseIP(svc.Spec.ExternalIPs[0])
 			if ip != nil {

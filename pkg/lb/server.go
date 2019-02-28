@@ -1,13 +1,13 @@
 package lb
 
 import (
-	"fmt"
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 
-	"github.com/sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 
 	"github.com/NVIDIA/nvl4lb/pkg/common"
 )
@@ -17,7 +17,7 @@ func StartServer(addr string) {
 	s := &server{
 		Server: http.Server{
 			Handler: router,
-			Addr: addr,
+			Addr:    addr,
 		},
 	}
 	router.NotFoundHandler = http.HandlerFunc(http.NotFound)

@@ -13,11 +13,13 @@ func ipvsUpdate(lbInfo *common.LBInfo) ([]byte, error) {
 
 	var flag string
 	switch lbInfo.Protocol {
-		case "tcp": flag = "-t"
-		case "udp": flag = "-u"
+	case "tcp":
+		flag = "-t"
+	case "udp":
+		flag = "-u"
 	}
 	// Create service
-	svc := lbInfo.ServiceIP.String()+ ":"+ fmt.Sprintf("%d",lbInfo.ServicePort)
+	svc := lbInfo.ServiceIP.String() + ":" + fmt.Sprintf("%d", lbInfo.ServicePort)
 
 	cmd := exec.Command("ipvsadm", "-A", flag, svc)
 	out, err := cmd.CombinedOutput()
@@ -26,8 +28,8 @@ func ipvsUpdate(lbInfo *common.LBInfo) ([]byte, error) {
 	}
 
 	// Create backends for the service
-	for _, backend := range(lbInfo.BackendIPs) {
-		cmd = exec.Command("ipvsadm", "-a", flag, svc, "-r", backend.String() + ":" + fmt.Sprintf("%d",lbInfo.BackendPort), "-m")
+	for _, backend := range lbInfo.BackendIPs {
+		cmd = exec.Command("ipvsadm", "-a", flag, svc, "-r", backend.String()+":"+fmt.Sprintf("%d", lbInfo.BackendPort), "-m")
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			// delete the service
@@ -44,10 +46,12 @@ func ipvsUpdate(lbInfo *common.LBInfo) ([]byte, error) {
 func ipvsDelete(lbInfo *common.LBInfo) ([]byte, error) {
 	var flag string
 	switch lbInfo.Protocol {
-		case "tcp": flag = "-t"
-		case "udp": flag = "-u"
+	case "tcp":
+		flag = "-t"
+	case "udp":
+		flag = "-u"
 	}
-	svc := lbInfo.ServiceIP.String()+ ":"+ fmt.Sprintf("%d",lbInfo.ServicePort)
+	svc := lbInfo.ServiceIP.String() + ":" + fmt.Sprintf("%d", lbInfo.ServicePort)
 	cmd := exec.Command("ipvsadm", "-D", flag, svc)
 	out, err := cmd.CombinedOutput()
 	if err != nil {

@@ -1,10 +1,8 @@
-
 package lb
 
 import (
 	"net/http"
 )
-
 
 var (
 	VirtInterface string

@@ -20,22 +20,22 @@ func main() {
 	c.Version = "0.0.1"
 	c.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "lbserver",
+			Name:  "lbserver",
 			Value: "127.0.0.1:8080",
 			Usage: "IP address and port for reaching out to the lb server for publishing lb entries",
 		},
 		cli.StringFlag{
-			Name: "lbCidr",
+			Name:  "lbCidr",
 			Value: "10.162.151.1/24",
 			Usage: "CIDR value from which the load balancer IPs will be chosen and assigned to the serviceIP. The external load balancer will be configured to receive traffic at the chosen IP as well. The upstream ToR to the load balancer should route this CIDR to the machine(s) where external lb is running.",
 		},
 		cli.StringFlag{
-			Name: "backend-selector",
+			Name:  "backend-selector",
 			Value: "",
 			Usage: "Comma separated key-value pairs to serve as label selectors for nodes that will serve as backends to external lb. These are the nodes where the traffic will arrive at from the client after being load balanced by lb. The destination port will be the nodeport for that service. It will be assumed that these nodes will have nodeport loadbalancing enabled to further load balance to pod backends.",
 		},
 		cli.StringFlag{
-			Name: "kubeconfig",
+			Name:  "kubeconfig",
 			Value: "",
 			Usage: "Absolute path to the kubeconfig file for watching resources to the kubernetes cluster",
 		},
