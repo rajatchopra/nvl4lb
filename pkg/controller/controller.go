@@ -32,15 +32,15 @@ type controller struct {
 	nodeInformer cache.SharedIndexInformer
 }
 
-func Start(lb string, backendSelector string, kClient kubernetes.Interface) error {
-	c, err := New(lb, backendSelector)
+func Start(lb string, cidr string, backendSelector string, kClient kubernetes.Interface) error {
+	c, err := New(lb, cidr, backendSelector)
 	if err != nil {
 		return err
 	}
 	return c.Run(kClient)
 }
 
-func New(lb string, backendSelector string) (Controller, error) {
+func New(lb string, cidr, backendSelector string) (Controller, error) {
 	lbIP, lbPort, err := net.SplitHostPort(lb)
 	if err != nil {
 		return nil, fmt.Errorf("Error in parsing lb address: %v", err)
@@ -57,7 +57,7 @@ func New(lb string, backendSelector string) (Controller, error) {
 		selector: selector,
 	}
 	// TODO: fix hardcoded IP range
-	ipr, _ := iprange.ParseIPRange("10.10.100.1/24")
+	ipr, _ := iprange.ParseIPRange(cidr)
 	c.ipAllocator = iprange.NewAllocator(ipr)
 	return c, nil
 }
