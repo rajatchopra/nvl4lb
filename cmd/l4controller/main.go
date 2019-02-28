@@ -50,6 +50,7 @@ func main() {
 }
 
 func runSvcWatcher(ctx *cli.Context) error {
+	logrus.SetLevel(logrus.Level(5))
 	lb := ctx.String("lbserver")
 
 	var err error

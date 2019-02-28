@@ -17,7 +17,7 @@ func main() {
 	c.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "addr",
-			Value: "0:8000",
+			Value: "0.0.0.0:8000",
 			Usage: "Address and port to listen upon",
 		},
 		cli.StringFlag{

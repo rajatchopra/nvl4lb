@@ -15,6 +15,8 @@ import (
 func (c *controller) send(action string, payload string) error {
 	url := fmt.Sprintf("http://%s:%d/%s", c.lbIP, c.lbPort, action)
 
+	logrus.Infof("Sending %s to %s with payload: %v\n", action, url, payload)
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(payload)))
 	req.Header.Set("Content-Type", "application/json")
 
