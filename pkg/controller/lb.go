@@ -13,7 +13,7 @@ import (
 )
 
 func (c *controller) send(action string, payload string) error {
-	url := fmt.Sprintf("http://%s:%d/%s", c.lbIP, c.lbPort, action)
+	url := fmt.Sprintf("http://%s:%s/%s", c.lbIP, c.lbPort, action)
 
 	logrus.Infof("Sending %s to %s with payload: %v\n", action, url, payload)
 
@@ -66,6 +66,7 @@ func (c *controller) lbUpdateAll() {
 		logrus.Errorf("Failed to create LB payload: %v", err)
 		return
 	}
+	return
 	err = c.send("sync", payload)
 	if err != nil {
 		logrus.Errorf("Failed to sync LB: %v", err)

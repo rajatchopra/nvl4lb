@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -26,13 +27,18 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "lbCidr",
-			Value: "10.162.151.1/24",
+			Value: "10.162.151.1-255",
 			Usage: "CIDR value from which the load balancer IPs will be chosen and assigned to the serviceIP. The external load balancer will be configured to receive traffic at the chosen IP as well. The upstream ToR to the load balancer should route this CIDR to the machine(s) where external lb is running.",
 		},
 		cli.StringFlag{
 			Name:  "backend-selector",
 			Value: "",
 			Usage: "Comma separated key-value pairs to serve as label selectors for nodes that will serve as backends to external lb. These are the nodes where the traffic will arrive at from the client after being load balanced by lb. The destination port will be the nodeport for that service. It will be assumed that these nodes will have nodeport loadbalancing enabled to further load balance to pod backends.",
+		},
+		cli.StringFlag{
+			Name:  "static-backends",
+			Value: "10.162.162.0",
+			Usage: "comma separated list of static backend IPs to append to the nodes selected by backend-selector",
 		},
 		cli.StringFlag{
 			Name:  "kubeconfig",
@@ -70,7 +76,7 @@ func runSvcWatcher(ctx *cli.Context) error {
 		logrus.Errorf("Error creating client from internal kubeconfig: %v", err)
 		return err
 	}
-	err = controller.Start(lb, ctx.String("lbCidr"), ctx.String("backend-selector"), kClient)
+	err = controller.Start(lb, ctx.String("lbCidr"), ctx.String("backend-selector"), strings.Split(ctx.String("static-backends"), ","), kClient)
 	if err != nil {
 		logrus.Errorf("Could not start controller: %v", err)
 		return err

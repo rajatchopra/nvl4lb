@@ -71,6 +71,8 @@ func getNodeIP(node *kapi.Node) net.IP {
 }
 
 func (c *controller) addNode(node *kapi.Node) {
+	// TODO: getNodeIP should get the actual address that we want to use not just the first one
+	return
 	// check labels
 	sel, err := metav1.LabelSelectorAsSelector(c.selector)
 	if err != nil {
