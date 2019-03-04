@@ -43,8 +43,8 @@ func ipvsUpdate(lbInfo *common.LBInfo) ([]byte, error) {
 
 	// setup additional (virtual) IP on interface
 	cmd = exec.Command("ip", "addr", "add", lbInfo.ServiceIP.String(), "dev", VirtInterface)
-	out, err := cmd.CombinedOutput()
-	// add BGP publish route for the service addr on virt interface
+	out, err = cmd.CombinedOutput()
+	// TODO: add BGP publish route for the service addr on virt interface
 	return out, err
 }
 
