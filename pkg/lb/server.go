@@ -39,12 +39,15 @@ func (s *server) requestToLbInfo(r *http.Request) (*common.LBInfo, error) {
 
 func (s *server) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	lbInfo, err := s.requestToLbInfo(r)
+	logrus.Debugf("Received request to update LB: %v", lbInfo)
 	if err != nil {
+		logrus.Errorf("Error while unmarshaling request body: %v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
 	res, err := ipvsUpdate(lbInfo)
 	if err != nil {
+		logrus.Errorf("Error while creating server: %v", err)
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 	} else {
 		// Empty response JSON means success with no body

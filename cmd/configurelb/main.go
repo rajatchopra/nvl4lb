@@ -36,6 +36,7 @@ func main() {
 }
 
 func runConfigureLB(ctx *cli.Context) error {
+	logrus.SetLevel(logrus.Level(5))
 	eth := ctx.String("interface")
 	lb.VirtInterface = eth
 	addr := ctx.String("addr")
