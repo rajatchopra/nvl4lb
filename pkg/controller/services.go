@@ -56,13 +56,24 @@ func (c *controller) addService(svc *kapi.Service) {
 		return
 	}
 	// get all ports/nodeports and create lb entries
+	var externalIPs []string
 	for _, svcPort := range svc.Spec.Ports {
 		ip, err := c.getNewLoadBalancerIP()
 		if err != nil {
 			logrus.Errorf("Failed to get new IP for service %s, port %d: %v", svc.Name, svcPort.Port, err)
 			continue
 		}
-		c.lbUpdate(svcPort.Port, svcPort.NodePort, string(svcPort.Protocol), ip)
+		err = c.lbUpdate(svcPort.Port, svcPort.NodePort, string(svcPort.Protocol), ip)
+		if err != nil {
+			continue
+		}
+		externalIPs = append(externalIPs, ip.String())
+	}
+	// update the service with externalIPs
+	svc.Spec.ExternalIPs = externalIPs
+	err := c.updateServiceObject(svc)
+	if err != nil {
+		logrus.Errorf("Error updating service object with external IPs: %v", err)
 	}
 }
 
@@ -87,4 +98,9 @@ func (c *controller) deleteService(svc *kapi.Service) {
 			logrus.Errorf("ExternalIPs not available for deleted svc %s", svc.Name)
 		}
 	}
+}
+
+func (c *controller) updateServiceObject(svc *kapi.Service) error {
+	_, err := c.kClient.CoreV1().Services(svc.Namespace).Update(svc)
+	return err
 }

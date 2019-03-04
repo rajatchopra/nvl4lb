@@ -34,30 +34,32 @@ func (c *controller) send(action string, payload string) error {
 	return nil
 }
 
-func (c *controller) lbUpdate(port, nodePort int32, protocol string, serviceIP net.IP) {
+func (c *controller) lbUpdate(port, nodePort int32, protocol string, serviceIP net.IP) error {
 	payload, err := common.LbPayload(port, nodePort, protocol, serviceIP, c.backendNodes)
 	if err != nil {
 		logrus.Errorf("Failed to update LB: %v", err)
-		return
+		return err
 	}
 	err = c.send("update", payload)
 	if err != nil {
 		logrus.Errorf("Failed to update LB: %v", err)
-		return
+		return err
 	}
+	return nil
 }
 
-func (c *controller) lbDelete(port, nodePort int32, protocol string, serviceIP net.IP) {
+func (c *controller) lbDelete(port, nodePort int32, protocol string, serviceIP net.IP) error {
 	payload, err := common.LbPayload(port, nodePort, protocol, serviceIP, nil)
 	if err != nil {
 		logrus.Errorf("Failed to create LB payload: %v", err)
-		return
+		return err
 	}
 	err = c.send("delete", payload)
 	if err != nil {
 		logrus.Errorf("Failed to delete LB: %v", err)
-		return
+		return err
 	}
+	return nil
 }
 
 func (c *controller) lbUpdateAll() {

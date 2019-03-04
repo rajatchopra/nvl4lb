@@ -30,6 +30,7 @@ type controller struct {
 	ipAllocator  *iprange.IPRangeAllocator
 	svcInformer  cache.SharedIndexInformer
 	nodeInformer cache.SharedIndexInformer
+	kClient      kubernetes.Interface
 }
 
 func Start(lb string, cidr string, backendSelector string, staticBackends []string, kClient kubernetes.Interface) error {
@@ -71,6 +72,7 @@ func New(lb string, cidr, backendSelector string, staticBackends []string) (Cont
 }
 
 func (c *controller) Run(kClient kubernetes.Interface) error {
+	c.kClient = kClient
 	iFactory := informerfactory.NewSharedInformerFactory(kClient, resyncInterval)
 	c.svcInformer = iFactory.Core().V1().Services().Informer()
 	c.nodeInformer = iFactory.Core().V1().Nodes().Informer()
